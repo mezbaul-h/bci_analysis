@@ -6,7 +6,6 @@ from mica.settings import settings
 
 from .dataset import UnicornDataset
 from .extractor import UnicornExtractor
-from .utils import sequential_split, stratified_split
 
 
 def iter_datasets() -> Tuple[DataLoader, DataLoader, DataLoader]:

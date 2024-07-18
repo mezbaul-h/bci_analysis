@@ -1,12 +1,11 @@
 from typing import Tuple
 
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
+from torch.utils.data import DataLoader
 
 from mica.settings import settings
 
 from .dataset import Bci42aDataset
 from .extractor import Bci42aExtractor
-from .utils import sequential_split, stratified_split
 
 
 def iter_datasets(batch_size: int = 16) -> Tuple[DataLoader, DataLoader, DataLoader]:
