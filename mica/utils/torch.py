@@ -11,6 +11,7 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 
 from mica.logger import logger
+from mica.settings import settings
 
 
 class EarlyStopping:
@@ -90,6 +91,7 @@ class ProgressBar(AbstractContextManager):
         self.val_acc = float("nan")
         self.pbar = tqdm.tqdm(
             bar_format="{n_fmt}/{total_fmt} [{bar:30}] {elapsed}<{remaining} {rate_fmt} | {desc}",
+            disable=settings.DISABLE_PROGRESS_BAR,
             total=total_samples,
             unit="sample",
         )

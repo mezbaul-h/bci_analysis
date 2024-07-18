@@ -1,10 +1,12 @@
 import json
 import pathlib
 import sys
+import time
 from logging import ERROR
 from typing import Optional
 
 import mne.utils
+import numpy as np
 from sklearn.model_selection import KFold
 from torch import nn, optim
 from torch.utils.data import DataLoader, RandomSampler, Subset
@@ -72,6 +74,14 @@ def cv(dataset, batch_size=16, epochs=500, n_splits=5, report_file: Optional[pat
         eval_report = trainer.evaluate(val_loader)
         fold_results.append(eval_report)
 
+    fold_results.insert(
+        0,
+        {
+            "acc_avg": np.mean([x["acc"] for x in fold_results]),
+            "acc_std": np.std([x["acc"] for x in fold_results]),
+        },
+    )
+
     if report_file:
         report_file.write_text(json.dumps(fold_results, indent=4))
 
@@ -115,6 +125,7 @@ def ho(
     test_loaders = []
 
     if isinstance(test_set, list):
+        print(len(test_set))
         for item in test_set:
             test_loaders.append(
                 {
@@ -151,7 +162,7 @@ def ho(
 
 def main():
     batch_size = 16
-    epochs = 1500
+    epochs = 1
 
     for sub_no, full_train_set, test_set in iter_datasets():
         cv(
@@ -169,3 +180,5 @@ def main():
             ho_fraction=0.3,
             report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_ho_P{sub_no:03d}.json",
         )
+
+        time.sleep(0.5)

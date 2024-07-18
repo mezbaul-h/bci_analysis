@@ -15,6 +15,8 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    DISABLE_PROGRESS_BAR: bool = False
+
     HF_DEVICE_MAP: str = "auto"
     HF_TOKEN: str = ""
     PACKAGE_ROOT_DIR: Path = Path(__file__).parent

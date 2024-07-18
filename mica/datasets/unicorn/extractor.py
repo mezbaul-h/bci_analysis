@@ -156,10 +156,10 @@ class UnicornExtractor:
         return f"sub-P{subject:03d}_ses-S{session:03d}_task-Ronak_run-{run:03d}_eeg.xdf"
 
     def extract_and_transform(self):
-        labeled_train_data = []
-        labeled_test_data = []
-
         for sub_no in self.SUBJECTS:
+            labeled_train_data = []
+            labeled_test_data = []
+
             run1_file = self.data_dir / self.compose_filename(sub_no, self.SESSIONS[0], self.RUNS[0])
             session = self.SESSIONS[0]
 
