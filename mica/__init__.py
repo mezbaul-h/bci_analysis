@@ -162,7 +162,7 @@ def ho(
 
 def main():
     batch_size = 16
-    epochs = 1
+    epochs = 1500
 
     for sub_no, full_train_set, test_set in iter_datasets():
         cv(
