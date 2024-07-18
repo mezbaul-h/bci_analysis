@@ -159,7 +159,7 @@ class UnicornExtractor:
         labeled_train_data = []
         labeled_test_data = []
 
-        for sub_no in [1]:  # self.SUBJECTS[:1]:
+        for sub_no in self.SUBJECTS:
             run1_file = self.data_dir / self.compose_filename(sub_no, self.SESSIONS[0], self.RUNS[0])
             session = self.SESSIONS[0]
 
