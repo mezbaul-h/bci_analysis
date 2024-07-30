@@ -1,5 +1,6 @@
 import math
 import pathlib
+import sys
 from typing import List, Tuple
 
 import numpy as np
@@ -9,6 +10,7 @@ import torch
 from ...settings import settings
 from ..bci42a.transformers import FilterBankTransformer
 from ..utils import cache_result
+from .utils import make_raw, pre_preprocess, remove_eog
 
 
 def extract_streams_from_xdf(filename: pathlib.Path, eeg_stream_type: str = "Data", channels: List[int] = None):
@@ -147,7 +149,8 @@ class UnicornExtractor:
     def __init__(self, data_dir: pathlib.Path) -> None:
         self.data_dir = data_dir
         self.transformer = FilterBankTransformer(
-            [[8, 12], [16, 24]],
+            # [[8, 12], [16, 24]],
+            [[4, 8], [8, 12], [12, 16], [16, 20], [20, 24], [24, 28], [28, 32], [32, 36], [36, 40]],
             self.SAMPLING_FREQUENCY,
         )
 
@@ -239,14 +242,25 @@ class UnicornExtractor:
         eeg_data, eeg_timestamps, marker_data, marker_timestamps = extract_streams_from_xdf(
             file_path, channels=self.CHANNELS
         )
+
+        raw = make_raw(eeg_data.T, sfreq=self.SAMPLING_FREQUENCY)
+        raw_preprocessed = pre_preprocess(raw)
+        eog_removed = remove_eog(raw_preprocessed)
+
+        eeg_data_processed = eog_removed.get_data().T
+
         epoch_size = self.TRIAL_EPOCH_WINDOW[1] - self.TRIAL_EPOCH_WINDOW[0]
         x, y = split_trials(
-            eeg_data, eeg_timestamps, marker_data, marker_timestamps, trial_size=epoch_size * self.SAMPLING_FREQUENCY
+            eeg_data_processed,
+            eeg_timestamps,
+            marker_data,
+            marker_timestamps,
+            trial_size=epoch_size * self.SAMPLING_FREQUENCY,
         )
         y = y[: self.N_TRIALS]
 
         # Normalization
-        x = x * 1e-3
+        # x = x * 1e-3
         y = y - 1
 
         windowed_data = []
