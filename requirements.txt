@@ -13,3 +13,4 @@ tqdm
 
 xlwt
 resampy
+python-picard
