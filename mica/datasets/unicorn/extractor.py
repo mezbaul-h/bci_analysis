@@ -160,9 +160,6 @@ class UnicornExtractor:
 
     def extract_and_transform(self):
         for sub_no in self.SUBJECTS:
-            if sub_no not in [4, 5]:
-                continue
-
             labeled_train_data = []
             labeled_test_data = []
 
