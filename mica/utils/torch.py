@@ -150,7 +150,8 @@ class Trainer:
         total_train_samples = len(train_loader.dataset)
 
         for epoch in range(epochs):
-            logger.info(f"Epoch {epoch + 1}/{epochs}")
+            if epoch % 500 == 0:
+                logger.info(f"Epoch {epoch + 1}/{epochs}")
 
             pbar = ProgressBar(total_train_samples)
 

@@ -9,7 +9,7 @@ import mne.utils
 import numpy as np
 from sklearn.model_selection import KFold
 from torch import nn, optim
-from torch.utils.data import DataLoader, RandomSampler, Subset
+from torch.utils.data import ConcatDataset, DataLoader, RandomSampler, Subset
 
 # from .datasets.bci42a import iter_datasets
 from .datasets.unicorn import iter_datasets
@@ -28,7 +28,7 @@ def make_trainer(early_stopping_criterion):
     model = FBCNet(
         n_chan=8,
         n_class=2,
-        n_bands=2,
+        n_bands=9,
         stride_factor=3,
     )
 
@@ -126,7 +126,6 @@ def ho(
     test_loaders = []
 
     if isinstance(test_set, list):
-        print(len(test_set))
         for item in test_set:
             test_loaders.append(
                 {
@@ -164,8 +163,21 @@ def ho(
 def main():
     batch_size = 16
     epochs = 1500
+    all_train_sets = []
+    all_test_sets_map = {}
 
     for sub_no, full_train_set, test_set in iter_datasets():
+        all_train_sets.append(full_train_set)
+
+        for item in test_set:
+            window = item["window"]
+            window_tuple = (window[0], window[1])
+
+            if window_tuple not in all_test_sets_map:
+                all_test_sets_map[window_tuple] = []
+
+            all_test_sets_map[window_tuple].append(item["dataset"])
+
         cv(
             full_train_set,
             batch_size=batch_size,
@@ -183,3 +195,30 @@ def main():
         )
 
         time.sleep(0.5)
+
+    all_train_sets = ConcatDataset(all_train_sets)
+    all_test_sets = []
+
+    for window_tuple in all_test_sets_map:
+        all_test_sets.append(
+            {
+                "window": [*window_tuple],
+                "dataset": ConcatDataset(all_test_sets_map[window_tuple]),
+            }
+        )
+
+    cv(
+        all_train_sets,
+        batch_size=batch_size,
+        epochs=epochs,
+        n_splits=5,
+        report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_cv_all.json",
+    )
+    ho(
+        all_train_sets,
+        all_test_sets,
+        batch_size=batch_size,
+        epochs=epochs,
+        ho_fraction=0.3,
+        report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_ho_all.json",
+    )

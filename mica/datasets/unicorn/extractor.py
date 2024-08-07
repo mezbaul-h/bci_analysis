@@ -149,8 +149,8 @@ class UnicornExtractor:
     def __init__(self, data_dir: pathlib.Path) -> None:
         self.data_dir = data_dir
         self.transformer = FilterBankTransformer(
-            [[8, 12], [16, 24]],
-            # [[4, 8], [8, 12], [12, 16], [16, 20], [20, 24], [24, 28], [28, 32], [32, 36], [36, 40]],
+            # [[8, 12], [16, 24]],
+            [[4, 8], [8, 12], [12, 16], [16, 20], [20, 24], [24, 28], [28, 32], [32, 36], [36, 40]],
             self.SAMPLING_FREQUENCY,
         )
 
@@ -160,6 +160,9 @@ class UnicornExtractor:
 
     def extract_and_transform(self):
         for sub_no in self.SUBJECTS:
+            if sub_no not in [4, 5]:
+                continue
+
             labeled_train_data = []
             labeled_test_data = []
 
