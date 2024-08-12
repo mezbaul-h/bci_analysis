@@ -133,11 +133,22 @@ class UnicornExtractor:
     SAMPLING_FREQUENCY = 250
     TRIAL_EPOCH_WINDOW = [0, 7]
     TRAIN_EPOCH_WINDOW = [3, 6]
+    # TEST_EPOCH_WINDOWS = [
+    #     [2, 5],
+    #     [2.5, 5.5],
+    #     [3, 6],
+    #     [3.5, 6.5],
+    #     [4, 7],
+    # ]
     TEST_EPOCH_WINDOWS = [
         [2, 5],
+        [2.25, 5.25],
         [2.5, 5.5],
+        [2.75, 5.75],
         [3, 6],
+        [3.25, 6.25],
         [3.5, 6.5],
+        [3.75, 6.75],
         [4, 7],
     ]
     N_TRIALS = 50
@@ -149,8 +160,8 @@ class UnicornExtractor:
     def __init__(self, data_dir: pathlib.Path) -> None:
         self.data_dir = data_dir
         self.transformer = FilterBankTransformer(
-            [[8, 12], [16, 24]],
-            # [[4, 8], [8, 12], [12, 16], [16, 20], [20, 24], [24, 28], [28, 32], [32, 36], [36, 40]],
+            # [[8, 12], [16, 24]],
+            [[4, 8], [8, 12], [12, 16], [16, 20], [20, 24], [24, 28], [28, 32], [32, 36], [36, 40]],
             self.SAMPLING_FREQUENCY,
         )
 

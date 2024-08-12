@@ -28,7 +28,7 @@ def make_trainer(early_stopping_criterion):
     model = FBCNet(
         n_chan=8,
         n_class=2,
-        n_bands=2,
+        n_bands=9,
         stride_factor=3,
     )
 
