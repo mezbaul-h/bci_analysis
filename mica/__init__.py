@@ -1,5 +1,6 @@
 import json
 import pathlib
+import shutil
 import sys
 import time
 from logging import ERROR
@@ -163,20 +164,14 @@ def ho(
 def main():
     batch_size = 16
     epochs = 1500
+    all_test_sets = []
     all_train_sets = []
-    all_test_sets_map = {}
+    sub_nums = []
 
     for sub_no, full_train_set, test_set in iter_datasets():
+        all_test_sets.append(test_set)
         all_train_sets.append(full_train_set)
-
-        for item in test_set:
-            window = item["window"]
-            window_tuple = (window[0], window[1])
-
-            if window_tuple not in all_test_sets_map:
-                all_test_sets_map[window_tuple] = []
-
-            all_test_sets_map[window_tuple].append(item["dataset"])
+        sub_nums.append(sub_no)
 
         cv(
             full_train_set,
@@ -196,29 +191,28 @@ def main():
 
         time.sleep(0.5)
 
-    all_train_sets = ConcatDataset(all_train_sets)
-    all_test_sets = []
+    for train_fold, test_fold in KFold(n_splits=len(sub_nums)).split(sub_nums):
+        test_data = all_test_sets[test_fold[0]]
+        train_data = [all_train_sets[item] for item in train_fold]
 
-    for window_tuple in all_test_sets_map:
-        all_test_sets.append(
-            {
-                "window": [*window_tuple],
-                "dataset": ConcatDataset(all_test_sets_map[window_tuple]),
-            }
+        sub_no = sub_nums[test_fold[0]]
+
+        full_train_set = ConcatDataset(train_data)
+        cv(
+            full_train_set,
+            batch_size=batch_size,
+            epochs=epochs,
+            n_splits=5,
+            report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_inter_cv_P{sub_no:03d}.json",
+        )
+        ho(
+            full_train_set,
+            test_data,
+            batch_size=batch_size,
+            epochs=epochs,
+            ho_fraction=0.3,
+            report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_inter_ho_P{sub_no:03d}.json",
         )
 
-    cv(
-        all_train_sets,
-        batch_size=batch_size,
-        epochs=epochs,
-        n_splits=5,
-        report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_cv_all.json",
-    )
-    ho(
-        all_train_sets,
-        all_test_sets,
-        batch_size=batch_size,
-        epochs=epochs,
-        ho_fraction=0.3,
-        report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_ho_all.json",
-    )
+    # clear residues
+    shutil.rmtree(settings.PACKAGE_ROOT_DIR / ".." / "output" / "file_extraction_cache", ignore_errors=True)

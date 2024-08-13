@@ -154,6 +154,7 @@ class UnicornExtractor:
     N_TRIALS = 50
     CHANNELS = list(range(8))
     SUBJECTS = list(range(1, 21))
+    # SUBJECTS = [4, 5, 6]
     SESSIONS = list(range(1, 3))
     RUNS = list(range(1, 5))
 
@@ -207,27 +208,28 @@ class UnicornExtractor:
                 )
             )
 
-            run4_file = self.data_dir / self.compose_filename(sub_no, session, self.RUNS[3])
+            # NOTE: skip run 4
+            # run4_file = self.data_dir / self.compose_filename(sub_no, session, self.RUNS[3])
 
-            if run4_file.exists():
-                labeled_train_data.extend(
-                    self.parse_file(
-                        file_path=run3_file,
-                    )
+            # if run4_file.exists():
+            #     labeled_train_data.extend(
+            #         self.parse_file(
+            #             file_path=run3_file,
+            #         )
+            #     )
+            #     labeled_test_data.extend(
+            #         self.parse_file(
+            #             file_path=run4_file,
+            #             epoch_windows=self.TEST_EPOCH_WINDOWS,
+            #         )
+            #     )
+            # else:
+            labeled_test_data.extend(
+                self.parse_file(
+                    file_path=run3_file,
+                    epoch_windows=self.TEST_EPOCH_WINDOWS,
                 )
-                labeled_test_data.extend(
-                    self.parse_file(
-                        file_path=run4_file,
-                        epoch_windows=self.TEST_EPOCH_WINDOWS,
-                    )
-                )
-            else:
-                labeled_test_data.extend(
-                    self.parse_file(
-                        file_path=run3_file,
-                        epoch_windows=self.TEST_EPOCH_WINDOWS,
-                    )
-                )
+            )
 
             yield sub_no, labeled_train_data, labeled_test_data
 
