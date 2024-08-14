@@ -173,29 +173,32 @@ def main():
         all_train_sets.append(full_train_set)
         sub_nums.append(sub_no)
 
-        cv(
-            full_train_set,
-            batch_size=batch_size,
-            epochs=epochs,
-            n_splits=5,
-            report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_cv_P{sub_no:03d}.json",
-        )
-        ho(
-            full_train_set,
-            test_set,
-            batch_size=batch_size,
-            epochs=epochs,
-            ho_fraction=0.3,
-            report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_ho_P{sub_no:03d}.json",
-        )
+        # cv(
+        #     full_train_set,
+        #     batch_size=batch_size,
+        #     epochs=epochs,
+        #     n_splits=5,
+        #     report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_cv_P{sub_no:03d}.json",
+        # )
+        # ho(
+        #     full_train_set,
+        #     test_set,
+        #     batch_size=batch_size,
+        #     epochs=epochs,
+        #     ho_fraction=0.3,
+        #     report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_ho_P{sub_no:03d}.json",
+        # )
 
         time.sleep(0.5)
 
     for train_fold, test_fold in KFold(n_splits=len(sub_nums)).split(sub_nums):
+        sub_no = sub_nums[test_fold[0]]
+
+        if sub_no in [1, 2]:
+            continue
+
         test_data = all_test_sets[test_fold[0]]
         train_data = [all_train_sets[item] for item in train_fold]
-
-        sub_no = sub_nums[test_fold[0]]
 
         full_train_set = ConcatDataset(train_data)
         cv(
