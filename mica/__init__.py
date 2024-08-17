@@ -194,7 +194,7 @@ def main():
     for train_fold, test_fold in KFold(n_splits=len(sub_nums)).split(sub_nums):
         sub_no = sub_nums[test_fold[0]]
 
-        if sub_no not in [10, 11, 12]:
+        if sub_no not in [13, 14, 15]:
             continue
 
         print("Subject", sub_no)
