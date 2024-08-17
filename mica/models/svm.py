@@ -7,7 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer, StandardScaler
 from sklearn.svm import SVC
 
-from .fbcsp import FBCSP
+from .fbcsp2 import FBCSP
 
 
 # Define a function to reshape the data for sklearn compatibility

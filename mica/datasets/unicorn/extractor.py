@@ -303,6 +303,7 @@ class UnicornExtractor:
                 labeled_data.append(
                     {
                         "data": torch.from_numpy(self.transformer(x_sub[i, :, :]).astype(np.float32)),
+                        # "data": torch.from_numpy((x_sub[i, :, :]).astype(np.float32)),
                         "label": torch.tensor(label, dtype=torch.long),
                     }
                 )

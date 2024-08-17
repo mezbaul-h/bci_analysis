@@ -8,7 +8,7 @@ import torch
 import tqdm
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from torch import nn, optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 from mica.logger import logger
 from mica.settings import settings
@@ -303,3 +303,25 @@ class Trainer:
             "y_pred": predictions.tolist(),
             "y_true": true_labels.tolist(),
         }
+
+
+def dataset_to_numpy(dataset: Dataset):
+    # Assuming your dataset is called 'your_dataset'
+    dataloader = DataLoader(dataset, batch_size=len(dataset), shuffle=False)
+
+    data = []
+    labels = []
+
+    for batch in dataloader:
+        data.append(batch["data"].cpu().numpy())
+        labels.append(batch["label"].cpu().numpy())
+
+    # Convert to numpy arrays
+    data_np = np.array(data).flatten()
+    labels_np = np.array(labels).flatten()
+
+    # Reshape the data
+    n_trials = len(dataset)
+    data_reshaped = data_np.reshape(n_trials, 8, 750)
+
+    return data_reshaped, labels_np
