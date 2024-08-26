@@ -19,6 +19,7 @@ from .logger import logger
 from .models import fbcnet, lda, rf, svm, transformer
 from .models.fbcnet import FBCNet
 from .settings import settings
+from .utils.drawing import draw_loss_acc_graph
 from .utils.torch import EarlyStopping, Trainer
 
 mne.utils.set_log_level(ERROR)
@@ -89,7 +90,13 @@ def cv(dataset, batch_size=16, epochs=500, n_splits=5, report_file: Optional[pat
 
 
 def ho(
-    full_train_set, test_set, batch_size=16, epochs=500, ho_fraction=0.2, report_file: Optional[pathlib.Path] = None
+    full_train_set,
+    test_set,
+    batch_size=16,
+    epochs=500,
+    ho_fraction=0.2,
+    report_file: Optional[pathlib.Path] = None,
+    subject_no: int = None,
 ):
     train_set, val_set = stratified_split(full_train_set, val_split=ho_fraction)
     # train_set, val_set = sequential_split(full_train_set, val_split=0.25)
@@ -113,6 +120,15 @@ def ho(
         mode="min",
         threshold=trainer.history["train_loss"][-1],
     )
+
+    draw_loss_acc_graph(
+        trainer.history["train_loss"],
+        trainer.history["train_acc"],
+        trainer.history["val_loss"],
+        trainer.history["val_acc"],
+        filename=f"loss_acc_{subject_no}.png",
+    )
+
     trainer.history = {k: [] for k in trainer.history.keys()}
     trainer.early_stopping_criteria = [early_stopping_full_set]
 
@@ -169,6 +185,9 @@ def main():
     sub_nums = []
 
     for sub_no, full_train_set, test_set in iter_datasets():
+        if sub_no not in [1, 2, 3]:
+            continue
+
         all_test_sets.append(test_set)
         all_train_sets.append(full_train_set)
         sub_nums.append(sub_no)
@@ -180,44 +199,42 @@ def main():
         #     n_splits=5,
         #     report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_cv_P{sub_no:03d}.json",
         # )
-        # ho(
-        #     full_train_set,
-        #     test_set,
-        #     batch_size=batch_size,
-        #     epochs=epochs,
-        #     ho_fraction=0.3,
-        #     report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_ho_P{sub_no:03d}.json",
-        # )
-
-        time.sleep(0.5)
-
-    for train_fold, test_fold in KFold(n_splits=len(sub_nums)).split(sub_nums):
-        sub_no = sub_nums[test_fold[0]]
-
-        if sub_no not in [10, 11, 12]:
-            continue
-
-        print("Subject", sub_no)
-
-        test_data = all_test_sets[test_fold[0]]
-        train_data = [all_train_sets[item] for item in train_fold]
-
-        full_train_set = ConcatDataset(train_data)
-        cv(
-            full_train_set,
-            batch_size=batch_size,
-            epochs=epochs,
-            n_splits=5,
-            report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_inter_cv_P{sub_no:03d}.json",
-        )
         ho(
             full_train_set,
-            test_data,
+            test_set,
             batch_size=batch_size,
             epochs=epochs,
             ho_fraction=0.3,
-            report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_inter_ho_P{sub_no:03d}.json",
+            report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_ho_P{sub_no:03d}.json",
+            subject_no=sub_no,
         )
 
-    # clear residues
+        time.sleep(0.5)
+
+    # for train_fold, test_fold in KFold(n_splits=len(sub_nums)).split(sub_nums):
+    #     sub_no = sub_nums[test_fold[0]]
+    #
+    #     print("Subject", sub_no)
+    #
+    #     test_data = all_test_sets[test_fold[0]]
+    #     train_data = [all_train_sets[item] for item in train_fold]
+    #
+    #     full_train_set = ConcatDataset(train_data)
+    #     cv(
+    #         full_train_set,
+    #         batch_size=batch_size,
+    #         epochs=epochs,
+    #         n_splits=5,
+    #         report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_inter_cv_P{sub_no:03d}.json",
+    #     )
+    #     ho(
+    #         full_train_set,
+    #         test_data,
+    #         batch_size=batch_size,
+    #         epochs=epochs,
+    #         ho_fraction=0.3,
+    #         report_file=settings.PACKAGE_ROOT_DIR / ".." / "output" / f"report_inter_ho_P{sub_no:03d}.json",
+    #     )
+    #
+    # # clear residues
     shutil.rmtree(settings.PACKAGE_ROOT_DIR / ".." / "output" / "file_extraction_cache", ignore_errors=True)

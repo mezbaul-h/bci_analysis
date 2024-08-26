@@ -264,7 +264,7 @@ class UnicornExtractor:
 
         epoch_size = self.TRIAL_EPOCH_WINDOW[1] - self.TRIAL_EPOCH_WINDOW[0]
         x, y = split_trials(
-            eeg_data_processed,
+            eeg_data,
             eeg_timestamps,
             marker_data,
             marker_timestamps,
@@ -273,7 +273,7 @@ class UnicornExtractor:
         y = y[: self.N_TRIALS]
 
         # Normalization
-        # x = x * 1e-3
+        x = x * 1e-3
         y = y - 1
 
         windowed_data = []
