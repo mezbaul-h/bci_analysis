@@ -264,7 +264,7 @@ class UnicornExtractor:
 
         epoch_size = self.TRIAL_EPOCH_WINDOW[1] - self.TRIAL_EPOCH_WINDOW[0]
         x, y = split_trials(
-            eeg_data,
+            eeg_data_processed,
             eeg_timestamps,
             marker_data,
             marker_timestamps,
