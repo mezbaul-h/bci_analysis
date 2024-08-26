@@ -126,7 +126,7 @@ def ho(
         trainer.history["train_acc"],
         trainer.history["val_loss"],
         trainer.history["val_acc"],
-        filename=f"loss_acc_{subject_no}.png",
+        filename=f"loss_acc_eog_{subject_no}.png",
     )
 
     trainer.history = {k: [] for k in trainer.history.keys()}
