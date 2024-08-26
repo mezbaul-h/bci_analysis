@@ -273,7 +273,7 @@ class UnicornExtractor:
         y = y[: self.N_TRIALS]
 
         # Normalization
-        x = x * 1e-3
+        # x = x * 1e-3
         y = y - 1
 
         windowed_data = []
